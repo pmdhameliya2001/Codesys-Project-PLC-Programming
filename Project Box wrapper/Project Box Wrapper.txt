@@ -1,0 +1,190 @@
+--------------------
+Project Box Wrapper
+--------------------
+
+Selection of motors and Cabling:   
+
+1. up/down motor :  0.37 kW 380VAC 3-Phase  		Speed control Requirement : VFD 0.37 kW , Overload not Required
+		    I = W / (V*0.7*1.73) = 0.8 A	Distance = 1m   
+
+Cable  = 1*1.5 mm
+
+
+2. Rotation motor:  0.55 kW 380VAC 3-Phase		Speed control Requirement : VFD 0.55 kW, Overload not Required
+		    I = W / (V*0.7*1.73) = 1.2 A	Distance = 1m   
+
+Cable = 1*1.5 mm
+
+
+Total Power Consumption:  0.37 + 0.55 = 0.92 kW
+
+
+Cable extensions from motor to the electrical panel terminal blocks: 6 meters of 1*1.5 mm
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Digital Sensor Cabling:
+
+
+1. High Limit Switch		24VDC NO	Distance = 2m		2*0.75mm (Switches have 2 contacts)
+2. Low Limit Switch		24VDC NO	Distance = 1m		2*0.75mm (Switches have 2 contacts)
+3. Strech Proximity Sensor	24VDC		Distance = 2m		3*0.75mm (Proximity Sensor has 3 contacts)
+4. Count Proximity Sensor	24VDC		Distance = 1m		3*0.75mm (Proximity Sensor has 3 contacts)
+
+Current Consumption:
+ 
+12 mA per PLC input = 12mA * 4 = 48mA
+
+Power = 48mA * 24VDC = 1.1W
+
+Cabling from the sensor to the terminal blocks:
+(generally comes with pack of fixed lengths)
+3m of 2*0.75
+3m of 3*0.75
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+Actuators relays and Cabling::
+
+VFD rotation	24VDC Relay	1*0.75mm	24VDC Relay
+VFD Up_Down	24VDC Relay	1*0.75mm	24VDC Relay
+VFD Up_Down	24VDC Relay	1*0.75mm	24VDC Relay
+Spare		24VDC Relay	1*0.75mm	24VDC Relay
+
+
+Total Current Consumption:
+
+12mA per PLC output(Average) + 9mA per Relay Coil
+(12mA * 4) + (9mA * 4) = 84mA (Important for PowerSupply current Rating)
+
+Power = 24VDC * 84mA = 2W (Negligible in our power Consumption)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+PLC Choice::
+
+Digital Outputs : 1. Rotation Motor		AnalogOutput: 1. VFD1 Frequency
+		 2. Up_Down Motor			      2. VFD2 Frequency
+		 3. Up_Down Motor
+		 4. Spare 2
+
+
+Digital Inputs: 1. High Limit SW
+		2. Low Limit SW
+		3. Stretch Proximity
+		4. Count Proximity
+		5. Motor1 OVLD
+		6. Motor2 OVLD
+		7. EMGC Stop
+		8. Spare 1
+		9. Spare 2
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+HMI Choice:
+
+We can choose an HMI Screen(PLC should support Profinet or Modbus)
+OR  control over remote PC(PLC should have ethernet port)
+
+We will choose here Remote OC based operation in our Peoject.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DC Power Consumption and Power Supply::
+
+Digital Output	: 12mA * 4 = 48mA
+Digital Inputs	: 12mA * 9 = 108mA
+Analog Output	: 12mA * 2 = 24mA
+Relays		: 9mA * 4 = 36mA
+PLC Internal	: 20mA
+VFD Internal	: 5mA * 2 = 10mA
+___________________________________
+		Total : 246mA
+
+A 1Amp power supply would be more than enough in our project.
+
+
+1Amp 24VDC industrial power supply (With Short-circuit Protection) 
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Main Circuit Breaker::
+
+Total Motors Power consumption = 0.92kW = 920W
+PLC IO + PLC internal power + Relays are barely 5W (Too Small)
+
+
+TOTAL POWER: 920W + 5W + 20% = 1.1kW  (20% in future expected changes)
+TOTAL CURRENT : 1.1kW / (380 * 0.7 * 1.73) = 2.4A
+
+A main circuit breaker is used to protect the input power cable mainly.
+
+Steps to choose Main Circuit Breaker::
+
+1. Check the cable length needed between the main power source(Transformer, Power distribution panel) and your main circuit breaker.
+   Assume in our case is 10m.
+
+2. Calculate the total current consumption of your electrical panel.
+   Assume our case 2.4*10(Accounting worst case inrush currents) = 24A
+
+3. For main circuit breaker cable, at least 1.5mm should be used for electrical panels with motors loading. But will it be enough here?? is voltage
+   drop less than 3%??
+
+4. Voltage Drop% = 1.73 * Current * Cable_impedence_per_meter * Cable Length * 100
+                  _______________________________________________________________
+				Voltage_source_rate
+
+  Our Case::
+                = 1.73 * 24 * 0.0138 * 10 * 100
+		  _____________________________ = 1.5% (Less than 3%, hence ACCEPTALE!!!)
+
+				380 
+
+5. So, What is the max current that our 1.5mm cable can handle from our Diameter-current Table??
+   IT IS 25A.
+
+
+So, our main Input MCB should be rated at 25A type C (To account for inrush currents).
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+Choosing MCBs ::
+
+1. 24VDC power supply       : MCB of 1A  1-Pole MCB		Switching
+
+2. PLC : 1A control circuit : MCB of 1A  1-Pole MCB		Switching 
+
+3. VFD : 0.55kW : 0.55kW / (380 * 1.73 * 0.7)=1.2A 		Switching   (Type C chosen because it can handle inrush currents )
+	 2A 3-Pole MCB Type C (5-10 Times)    
+
+4. VFD : 0.37kW : 0.37kW / (380 * 1.73 * 0.7)= 0.8A 		Switching
+	 1A 3-Pole MCB Type C (5-10 Times)    
+
+Since these MCBs are for switching only, Any MCB rating higher than the device Max rating is enough.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Internal Electrical Panel Cabling::
+
+
+1. For DC control(Relays, PLC) : 0.75mm cables
+2. For both VFDs : 1.5mm
+3. For the main Circuit Breaker Input : 1.5mm
+
+Make sure to follow a colour coding for the internal elecrical panel :
+
+1. 24VDC : i.e. Brown
+2. 0VDC : i.e. Blue
+3. Phases : i.e. Black
+4. Analog Output : i.e. White
+5. Digital Input : i.e. Red
+6. Digital Output : i.e. Brown/Yellow
+
+OR check your country coloring Standerds
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+Fuses::
+
+Since our total current consumption is around 250mA, then a 500mA fuse would be suitable(Closest Higher fuse rate Standard)
+
